@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export default function InteractiveRating({ itemId, initialRating, initialNumRatings }) {
-  const { user } = useAuth(); // get the current user from context
+  const { user } = useAuth();
   const [selectedRating, setSelectedRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [avgRating, setAvgRating] = useState(initialRating);
   const [numRatings, setNumRatings] = useState(initialNumRatings);
   const [message, setMessage] = useState("");
@@ -13,17 +14,16 @@ export default function InteractiveRating({ itemId, initialRating, initialNumRat
 
   useEffect(() => {
     if (user) {
-      // use the user from context
       fetch(`/api/items/${itemId}/user-rating?userId=${user.userId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.userRating) {
-            setSelectedRating(data.userRating);
+            setSelectedRating(Number(data.userRating));
           }
           setLoading(false);
         })
         .catch((err) => {
-          console.error(err);
+          console.error("Error fetching user rating:", err);
           setLoading(false);
         });
     } else {
@@ -78,42 +78,48 @@ export default function InteractiveRating({ itemId, initialRating, initialNumRat
     return <p>Loading rating...</p>;
   }
 
+  const displayRating = hoverRating || selectedRating;
+
   return (
-    <div style={{ margin: "1rem 0" }}>
+    <div style={{ marginTop: "2rem" }}>
       <p>
         <strong>Rating:</strong> {avgRating} stars ({numRatings} ratings)
       </p>
-      <div>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <button
           onClick={handleRemoveRating}
           style={{
-            margin: "0 0.5rem",
+            marginRight: "1rem",
             padding: "0.5rem 1rem",
             backgroundColor: "#fff",
             border: "1px solid #ccc",
             borderRadius: "4px",
             cursor: "pointer",
-            fontWeight: selectedRating === 0 ? "bold" : "normal",
           }}
         >
           Remove
         </button>
-        {[1, 2, 3, 4, 5].map((value) => (
-          <button
-            key={value}
-            onClick={() => handleRatingClick(value)}
-            style={{
-              margin: "0 0.5rem",
-              padding: "0.5rem 1rem",
-              backgroundColor: selectedRating === value ? "#ddd" : "#fff",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            {value}
-          </button>
-        ))}
+        <div>
+          {[...Array(10)].map((_, index) => {
+            const starValue = index + 1;
+            return (
+              <span
+                key={starValue}
+                onMouseEnter={() => setHoverRating(starValue)}
+                onMouseLeave={() => setHoverRating(0)}
+                onClick={() => handleRatingClick(starValue)}
+                style={{
+                  cursor: "pointer",
+                  fontSize: "1.5rem",
+                  color: displayRating >= starValue ? "#FFD700" : "#ccc",
+                  marginRight: "2px",
+                }}
+              >
+                {displayRating >= starValue ? "★" : "☆"}
+              </span>
+            );
+          })}
+        </div>
       </div>
       {message && <p>{message}</p>}
     </div>

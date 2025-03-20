@@ -42,7 +42,7 @@ export default async function ItemPage({ params }) {
           <p><strong>Category:</strong> {item.category}</p>
           <p><strong>Price:</strong> ${item.price}</p>
           <p><strong>Seller:</strong> {item.seller}</p>
-          {/* Inline interactive rating below price/seller */}
+          {/* Interactive rating now shows overall rating dynamically */}
           <InteractiveRating
             itemId={item._id.toString()}
             initialRating={item.rating || "0"}

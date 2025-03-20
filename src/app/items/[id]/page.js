@@ -1,9 +1,9 @@
+// app/items/[id]/page.js
 import { ObjectId } from "mongodb";
 import clientPromise from "../../../lib/mongodb";
 import Link from "next/link";
-import RatingForm from "../../../components/RatingForm";
-import ReviewForm from "../../../components/ReviewForm";
-import ReviewList from "../../../components/ReviewList";
+import InteractiveRating from "../../../components/InteractiveRating";
+import ReviewSection from "../../../components/ReviewSection";
 
 export default async function ItemPage({ params }) {
   const { id } = await params;
@@ -30,10 +30,10 @@ export default async function ItemPage({ params }) {
       <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", marginBottom: "2rem" }}>
         {/* Item Image */}
         <div>
-          <img 
-            src={`/images/items/${item.image}`} 
-            alt={item.name} 
-            style={{ width: "300px", height: "300px", objectFit: "cover", borderRadius: "8px" }} 
+          <img
+            src={item.image}
+            alt={item.name}
+            style={{ width: "300px", height: "300px", objectFit: "cover", borderRadius: "8px" }}
           />
         </div>
         {/* Item Information */}
@@ -42,10 +42,12 @@ export default async function ItemPage({ params }) {
           <p><strong>Category:</strong> {item.category}</p>
           <p><strong>Price:</strong> ${item.price}</p>
           <p><strong>Seller:</strong> {item.seller}</p>
-          <p>
-            <strong>Rating:</strong> {item.rating ? item.rating : "N/A"} stars (
-            {item.num_of_ratings ? item.num_of_ratings : "0"} ratings)
-          </p>
+          {/* Inline interactive rating below price/seller */}
+          <InteractiveRating
+            itemId={item._id.toString()}
+            initialRating={item.rating || "0"}
+            initialNumRatings={item.num_of_ratings || 0}
+          />
           <p>{item.description}</p>
         </div>
       </div>
@@ -60,10 +62,8 @@ export default async function ItemPage({ params }) {
         </ul>
       </div>
 
-      {/* Rating and Review Client Components */}
-      <RatingForm itemId={item._id.toString()} />
-      <ReviewForm itemId={item._id.toString()} />
-      <ReviewList itemId={item._id.toString()} initialReviews={item.reviews || []} />
+      {/* Reviews Section */}
+      <ReviewSection itemId={item._id.toString()} initialReviews={item.reviews || []} />
     </div>
   );
 }

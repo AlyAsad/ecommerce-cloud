@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../context/AuthContext";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,8 +25,13 @@ export default function LoginPage() {
     if (!res.ok) {
       setError(data.error || "An error occurred");
     } else {
-      // Store the userId in localStorage so rating/review forms know the user is logged in.
-      localStorage.setItem("userId", data.userId);
+      const userData = {
+        userId: data.userId,
+        username: data.username,
+        isAdmin: data.isAdmin,
+      };
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
       router.push("/");
     }
   };

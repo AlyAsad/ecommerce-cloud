@@ -1,28 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function ReviewForm({ itemId, onReviewSubmitted }) {
-  const [userId, setUserId] = useState(null);
+  const { user } = useAuth();
   const [review, setReview] = useState("");
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    const uid = localStorage.getItem("userId");
-    setUserId(uid);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-    if (!userId) {
+    if (!user) {
       setMessage("Please log in to submit a review.");
       return;
     }
     const res = await fetch(`/api/items/${itemId}/review`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ review, userId }),
+      body: JSON.stringify({ review, userId: user.userId }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -37,7 +33,7 @@ export default function ReviewForm({ itemId, onReviewSubmitted }) {
   return (
     <div style={{ marginTop: "2rem" }}>
       <h2>Leave a review</h2>
-      {userId ? (
+      {user ? (
         <form onSubmit={handleSubmit}>
           <div>
             <label>Review: </label>

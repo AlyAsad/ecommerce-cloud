@@ -23,8 +23,13 @@ export async function POST(request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // In a production app, generate a session or token here.
-    return NextResponse.json({ message: "Login successful", userId: user._id });
+    // Return user info including username and isAdmin flag.
+    return NextResponse.json({
+      message: "Login successful",
+      userId: user._id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    });
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -39,7 +39,7 @@ export default function HeroSection({ topImages }) {
         {topImages.map((item, idx) => (
           <img
             key={idx}
-            src={`/images/items/${item.image}`}
+            src={item.image}
             alt={item.name}
             style={{
               width: "200px",

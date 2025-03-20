@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar";
+import { AuthProvider } from "../context/AuthContext";
 
 export const metadata = {
   title: "E-commerce",
@@ -8,11 +9,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        {/* Add a margin to create space between Navbar and page content */}
-        <div style={{ marginTop: "1rem" }}>
-          {children}
-        </div>
+        <AuthProvider>
+          <Navbar />
+          <div style={{ marginTop: "1rem" }}>{children}</div>
+        </AuthProvider>
       </body>
     </html>
   );

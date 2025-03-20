@@ -1,28 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-export default function ReviewList({ itemId, initialReviews }) {
-  const [reviews, setReviews] = useState(initialReviews || []);
-
-  const refreshReviews = async () => {
-    const res = await fetch(`/api/items/${itemId}/reviews`);
-    const data = await res.json();
-    if (res.ok) {
-      setReviews(data.reviews);
-    }
-  };
-
-  useEffect(() => {
-    // Optionally refresh reviews on mount.
-    // refreshReviews();
-  }, [itemId]);
-
+export default function ReviewList({ reviews }) {
   return (
-    <div>
+    <div style={{ marginTop: "2rem" }}>
       <h2>Customer Reviews</h2>
       {reviews && reviews.length > 0 ? (
-        reviews.map((review, index) => (
+        [...reviews].reverse().map((review, index) => (
           <div key={index} style={{ borderBottom: "1px solid #ccc", padding: "1rem 0" }}>
             <p>
               <strong>{review.username}</strong>
@@ -34,7 +17,6 @@ export default function ReviewList({ itemId, initialReviews }) {
       ) : (
         <p>No reviews yet.</p>
       )}
-      <button onClick={refreshReviews}>Refresh Reviews</button>
     </div>
   );
 }

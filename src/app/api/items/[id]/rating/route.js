@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 
 export async function POST(request, { params }) {
   try {
-    const { id } = params; // item id
+    const { id } = await params; // item id
     const { rating, userId } = await request.json();
 
     if (rating === undefined || !userId) {

@@ -55,7 +55,7 @@ export default function BrowseSection({ items, categories }) {
               }}
             >
               <img
-                src={`/images/items/${item.image}`}
+                src={item.image}
                 alt={item.name}
                 style={{
                   width: "100%",

@@ -32,14 +32,15 @@ export async function POST(request) {
 
     const newUser = {
       username,
+      isAdmin: false, // New users are not admin
       password: hashedPassword,
-      ratings: [], // Array to store { itemId, rating }
-      reviews: []  // Array to store { itemId, date, review }
+      ratings: [],
+      reviews: [],
     };
 
     const result = await db.collection("users").insertOne(newUser);
 
-    return NextResponse.json({ message: "User created", userId: result.insertedId }, { status: 201 });
+    return NextResponse.json({ message: "User created", userId: result.insertedId });
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

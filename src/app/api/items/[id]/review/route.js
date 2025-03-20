@@ -2,9 +2,19 @@ import { NextResponse } from "next/server";
 import clientPromise from "../../../../../lib/mongodb";
 import { ObjectId } from "mongodb";
 
+// Helper function to format the date as "23-Aug-2022"
+const formatDate = (date) => {
+  const d = new Date(date);
+  const day = d.getDate().toString().padStart(2, "0");
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = monthNames[d.getMonth()];
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+
 export async function POST(request, { params }) {
   try {
-    const { id } = params; // item id
+    const { id } = await params;
     const { review, userId } = await request.json();
 
     if (!review || !userId) {
@@ -22,7 +32,7 @@ export async function POST(request, { params }) {
 
     const reviewDocument = {
       username: user.username,
-      date: new Date().toLocaleDateString("en-US"),
+      date: formatDate(new Date()),
       data: review,
     };
 

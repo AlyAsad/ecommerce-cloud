@@ -141,17 +141,21 @@ export default function AdminPage() {
   };
 
   // 4. Remove User
-  const handleRemoveUser = async (userId) => {
+  const handleRemoveUser = async (userIdToRemove) => {
+    if (user && user.userId === userIdToRemove) {
+      alert("You cannot remove yourself as a user.");
+      return;
+    }
     if (!confirm("Are you sure you want to remove this user?")) return;
     const res = await fetch("/api/admin/user/remove", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ userId: userIdToRemove }),
     });
     const data = await res.json();
     if (res.ok) {
       alert("User removed successfully");
-      // refresh user list
+      // refresh user list:
       const res2 = await fetch("/api/admin/user/list");
       const data2 = await res2.json();
       setUsers(data2.users);
@@ -159,6 +163,7 @@ export default function AdminPage() {
       alert(data.error || "Error removing user");
     }
   };
+
 
   return (
     <div style={{ padding: "2rem" }}>

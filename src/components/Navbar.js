@@ -1,19 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const [searchValue, setSearchValue] = useState("");
   const router = useRouter();
   const { user, setUser } = useAuth();
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    console.log("Search:", searchValue);
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -43,21 +36,6 @@ export default function Navbar() {
       >
         🏠 Home
       </Link>
-      <form onSubmit={handleSearchSubmit} style={{ flex: 1, marginLeft: "1rem", marginRight: "1rem" }}>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          style={{
-            width: "250px",
-            padding: "0.5rem",
-            borderRadius: "8px",
-            border: "none",
-            outline: "none",
-          }}
-        />
-      </form>
       <div style={{ display: "flex", gap: "1rem", color: "#fff" }}>
         {user ? (
           <>

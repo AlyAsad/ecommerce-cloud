@@ -51,7 +51,7 @@ export default function BrowseSection({ items, categories }) {
               style={{
                 border: "1px solid #ccc",
                 borderRadius: "8px",
-                padding: "0.5rem", // reduced padding
+                padding: "0.5rem",
               }}
             >
               <img
@@ -59,7 +59,7 @@ export default function BrowseSection({ items, categories }) {
                 alt={item.name}
                 style={{
                   width: "100%",
-                  height: "120px", // reduced image height
+                  height: "120px",
                   objectFit: "cover",
                   borderRadius: "4px",
                 }}
@@ -70,7 +70,14 @@ export default function BrowseSection({ items, categories }) {
                 {item.rating ? item.rating : "N/A"} stars (
                 {item.num_of_ratings ? item.num_of_ratings : "0"} ratings)
               </p>
-              <p style={{ margin: "0.5rem 0" }}>
+              <p style={{ 
+                margin: "0.5rem 0",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                minHeight: "2.3em",
+              }}>
                 {item.description}
               </p>
             </div>

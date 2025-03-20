@@ -5,18 +5,21 @@ import { useState, useEffect } from "react";
 export default function RatingForm({ itemId, onRatingUpdate }) {
   const [userId, setUserId] = useState(null);
   const [selectedRating, setSelectedRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const uid = localStorage.getItem("userId");
-    setUserId(uid);
-    if (uid) {
-      fetch(`/api/items/${itemId}/user-rating?userId=${uid}`)
+    // Retrieve the full user object from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUserId(parsedUser.userId);
+      fetch(`/api/items/${itemId}/user-rating?userId=${parsedUser.userId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.userRating) {
-            setSelectedRating(data.userRating);
+            setSelectedRating(Number(data.userRating));
           }
           setLoading(false);
         })
@@ -73,41 +76,47 @@ export default function RatingForm({ itemId, onRatingUpdate }) {
     return <p>Loading rating...</p>;
   }
 
+  const displayRating = hoverRating || selectedRating;
+
   return (
     <div style={{ marginTop: "2rem" }}>
       <h2>Rate this item</h2>
       {userId ? (
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
           <button
             onClick={handleRemoveRating}
             style={{
-              margin: "0 0.5rem",
+              marginRight: "1rem",
               padding: "0.5rem 1rem",
               backgroundColor: "#fff",
               border: "1px solid #ccc",
               borderRadius: "4px",
               cursor: "pointer",
-              fontWeight: selectedRating === 0 ? "bold" : "normal",
             }}
           >
             Remove
           </button>
-          {[1, 2, 3, 4, 5].map((value) => (
-            <button
-              key={value}
-              onClick={() => handleRatingClick(value)}
-              style={{
-                margin: "0 0.5rem",
-                padding: "0.5rem 1rem",
-                backgroundColor: selectedRating === value ? "#ddd" : "#fff",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              {value}
-            </button>
-          ))}
+          <div>
+            {[...Array(10)].map((_, index) => {
+              const starValue = index + 1;
+              return (
+                <span
+                  key={starValue}
+                  onMouseEnter={() => setHoverRating(starValue)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  onClick={() => handleRatingClick(starValue)}
+                  style={{
+                    cursor: "pointer",
+                    fontSize: "1.5rem",
+                    color: displayRating >= starValue ? "#FFD700" : "#ccc",
+                    marginRight: "2px",
+                  }}
+                >
+                  {displayRating >= starValue ? "★" : "☆"}
+                </span>
+              );
+            })}
+          </div>
         </div>
       ) : (
         <p>Please log in to rate this item.</p>

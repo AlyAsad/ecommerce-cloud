@@ -8,10 +8,8 @@ export async function POST(request) {
     const client = await clientPromise;
     const db = client.db("ecommerceDB");
 
-    // Delete the item
     await db.collection("items").deleteOne({ _id: new ObjectId(itemId) });
 
-    // Update all users: remove ratings and reviews for this item
     await db.collection("users").updateMany(
       {},
       {

@@ -33,13 +33,11 @@ export default function AdminPage() {
   const [users, setUsers] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  // Snackbar state for notifications
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Confirmation Dialog state for removals
   const [confirmDialog, setConfirmDialog] = useState({ open: false, type: "", id: "", message: "" });
   const openConfirmDialog = (type, id, message) => {
     setConfirmDialog({ open: true, type, id, message });
@@ -60,7 +58,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok) {
         setSnackbar({ open: true, message: "Item removed successfully", severity: "success" });
-        // Refresh item list
+
         const res2 = await fetch("/api/admin/item/list");
         const data2 = await res2.json();
         setItems(data2.items);
@@ -76,7 +74,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok) {
         setSnackbar({ open: true, message: "User removed successfully", severity: "success" });
-        // Refresh user list:
+
         const res2 = await fetch("/api/admin/user/list");
         const data2 = await res2.json();
         setUsers(data2.users);
@@ -86,14 +84,14 @@ export default function AdminPage() {
     }
   };
 
-  // Redirect if not admin
+  
   useEffect(() => {
     if (!user || !user.isAdmin) {
       router.push("/");
     }
   }, [user, router]);
 
-  // Fetch lists when component mounts
+  
   useEffect(() => {
     async function fetchItems() {
       const res = await fetch("/api/admin/item/list");
@@ -113,16 +111,14 @@ export default function AdminPage() {
     fetchUsers();
   }, []);
 
-  // --- Handlers for Add/Remove actions ---
 
-  // 1. Add Item
+  
   const handleAddItem = async (e) => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
-    // Client-side validations using snackbar notifications
     if (selectedCategory === "GPS Sport Watches" && !payload.battery_life) {
       setSnackbar({ open: true, message: "Battery Life is required for GPS Sport Watches.", severity: "error" });
       return;
@@ -146,7 +142,6 @@ export default function AdminPage() {
       return;
     }
 
-    // Submit the new item
     const res = await fetch("/api/admin/item/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -157,7 +152,7 @@ export default function AdminPage() {
       setSnackbar({ open: true, message: "Item added successfully", severity: "success" });
       form.reset();
       setSelectedCategory("");
-      // Refresh item list
+      
       const res2 = await fetch("/api/admin/item/list");
       const data2 = await res2.json();
       setItems(data2.items);
@@ -166,7 +161,7 @@ export default function AdminPage() {
     }
   };
 
-  // 3. Add User
+  
   const handleAddUser = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -182,7 +177,7 @@ export default function AdminPage() {
     if (res.ok) {
       setSnackbar({ open: true, message: "User added successfully", severity: "success" });
       form.reset();
-      // Refresh user list
+      
       const res2 = await fetch("/api/admin/user/list");
       const data2 = await res2.json();
       setUsers(data2.users);
@@ -191,9 +186,7 @@ export default function AdminPage() {
     }
   };
 
-  // Render functions for each tab
-
-  // Add Item Tab with combined fields
+  
   const renderAddItemTab = () => (
     <Box>
       <Typography variant="h5" gutterBottom>

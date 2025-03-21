@@ -21,18 +21,16 @@ export async function POST(request) {
     const client = await clientPromise;
     const db = client.db("ecommerceDB");
 
-    // Ensure the username is unique
     const existingUser = await db.collection("users").findOne({ username });
     if (existingUser) {
       return NextResponse.json({ error: "Username already taken" }, { status: 400 });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = {
       username,
-      isAdmin: false, // New users are not admin
+      isAdmin: false,
       password: hashedPassword,
       ratings: [],
       reviews: [],

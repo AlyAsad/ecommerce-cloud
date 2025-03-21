@@ -42,7 +42,6 @@ export default async function ItemPage({ params }) {
         </Button>
       </Link>
       <Grid container spacing={4}>
-        {/* Item Image */}
         <Grid item xs={12} md={4}>
           <Box
             component="img"
@@ -51,7 +50,6 @@ export default async function ItemPage({ params }) {
             sx={{ width: "100%", height: "auto", objectFit: "cover", borderRadius: 2 }}
           />
         </Grid>
-        {/* Item Information */}
         <Grid item xs={12} md={8}>
           <Typography variant="h4" component="h1" gutterBottom>
             {item.name}

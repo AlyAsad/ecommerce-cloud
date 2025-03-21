@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 
 export async function POST(request, { params }) {
   try {
-    const { id } = await params; // item id
+    const { id } = await params;
     const { rating, userId } = await request.json();
 
     if (rating === undefined || !userId) {
@@ -15,25 +15,22 @@ export async function POST(request, { params }) {
     const client = await clientPromise;
     const db = client.db("ecommerceDB");
 
-    // Fetch the latest item document
+    
     let item = await db.collection("items").findOne({ _id: new ObjectId(id) });
     if (!item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
     
-    // Fetch the user's document freshly
     const user = await db.collection("users").findOne({ _id: new ObjectId(userId) });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check if user has already rated this item (using fresh user doc)
     const existingUserRating = user.ratings.find(r => r.itemId === id);
 
-    // --- Removal ---
     if (numericRating === 0) {
       if (existingUserRating) {
-        // Remove the rating from the user's document.
+        
         await db.collection("users").updateOne(
           { _id: new ObjectId(userId) },
           { $pull: { ratings: { itemId: id } } }
@@ -46,7 +43,7 @@ export async function POST(request, { params }) {
           { _id: new ObjectId(id) },
           { $set: { rating: newAverage, num_of_ratings: newNumOfRatings } }
         );
-        // Re-read updated item
+        
         const updatedItem = await db.collection("items").findOne({ _id: new ObjectId(id) });
         return NextResponse.json({
           message: "Rating removed",
@@ -57,7 +54,7 @@ export async function POST(request, { params }) {
         return NextResponse.json({ message: "No existing rating to remove" });
       }
     }
-    // --- Update existing rating ---
+    
     else if (existingUserRating) {
       const oldRating = Number(existingUserRating.rating);
       const totalRating = Number(item.rating) * Number(item.num_of_ratings);
@@ -78,7 +75,7 @@ export async function POST(request, { params }) {
         newNumOfRatings: updatedItem.num_of_ratings,
       });
     }
-    // --- New rating ---
+    
     else {
       const totalRating = Number(item.rating) * Number(item.num_of_ratings);
       const newNumOfRatings = Number(item.num_of_ratings) + 1;

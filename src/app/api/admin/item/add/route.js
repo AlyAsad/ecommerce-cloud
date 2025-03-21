@@ -7,7 +7,6 @@ export async function POST(request) {
     const client = await clientPromise;
     const db = client.db("ecommerceDB");
 
-    // Set default rating values
     itemData.rating = 0.0;
     itemData.num_of_ratings = 0;
     itemData.reviews = [];

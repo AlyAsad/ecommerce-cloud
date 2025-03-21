@@ -7,14 +7,13 @@ export default async function HomePage() {
   const client = await clientPromise;
   const db = client.db("ecommerceDB");
   const itemsData = await db.collection("items").find({}).toArray();
-  // Serialize the MongoDB _id field to a string
+  
   const items = itemsData.map((item) => ({ ...item, _id: item._id.toString() }));
 
-  // Randomly select 4 items for the top images (hero section)
+  // i am randomly selecting 4 items for the top images
   const shuffledItems = [...items].sort(() => 0.5 - Math.random());
   const topImages = shuffledItems.slice(0, 4);
 
-  // Define the categories
   const categories = [
     { label: "All items", value: "all" },
     { label: "Vinyls", value: "Vinyls" },

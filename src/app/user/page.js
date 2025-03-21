@@ -24,14 +24,12 @@ export default function UserPage() {
   const [itemsMap, setItemsMap] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Redirect immediately if no user
   useEffect(() => {
     if (!user) {
       router.push("/");
     }
   }, [user, router]);
 
-  // Fetch user details using the userId
   useEffect(() => {
     if (user) {
       async function fetchDetails() {
@@ -52,17 +50,14 @@ export default function UserPage() {
     }
   }, [user]);
 
-  // Fetch items from the admin endpoint and build a mapping from item IDs to names
   useEffect(() => {
     async function fetchItems() {
       try {
-        // Use the admin items endpoint instead of /api/items
         const res = await fetch(`/api/admin/item/list`);
         if (res.ok) {
           const data = await res.json();
           const map = {};
           data.items.forEach((item) => {
-            // Convert _id to string for proper matching
             map[item._id.toString()] = item.name;
           });
           console.log("Items Map:", map);
@@ -95,7 +90,6 @@ export default function UserPage() {
     );
   }
 
-  // Ensure user is defined before accessing its properties
   if (!user) {
     router.push("/");
     return null;
@@ -131,7 +125,6 @@ export default function UserPage() {
         {details.ratings && details.ratings.length > 0 ? (
           <List>
             {details.ratings.map((r, idx) => {
-              // Ensure itemId is a string before lookup
               const key = r.itemId.toString();
               console.log("Rating itemId:", key);
               const itemName = itemsMap[key] || key;

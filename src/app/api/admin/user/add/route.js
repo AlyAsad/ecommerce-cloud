@@ -8,7 +8,6 @@ export async function POST(request) {
     const client = await clientPromise;
     const db = client.db("ecommerceDB");
 
-    // Check if username already exists
     const existingUser = await db.collection("users").findOne({ username });
     if (existingUser) {
       return NextResponse.json({ error: "Username already exists" }, { status: 400 });

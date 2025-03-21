@@ -23,7 +23,6 @@ export async function POST(request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // Return user info including username and isAdmin flag.
     return NextResponse.json({
       message: "Login successful",
       userId: user._id,

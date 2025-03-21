@@ -25,7 +25,7 @@ export default function SignupPage() {
     if (!res.ok) {
       setError(data.error || "An error occurred");
     } else {
-      // After successful signup, redirect to login.
+      // after successful signup, i am redirecting to login
       router.push("/login");
     }
   };

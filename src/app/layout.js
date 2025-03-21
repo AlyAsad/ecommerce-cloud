@@ -3,6 +3,9 @@ import { AuthProvider } from "../context/AuthContext";
 
 export const metadata = {
   title: "E-commerce",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {

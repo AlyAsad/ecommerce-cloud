@@ -13,9 +13,6 @@ export async function GET(request) {
     const client = await clientPromise;
     const db = client.db("ecommerceDB");
 
-    // Adjust this query based on how you store user identifiers.
-    // If you stored a custom field "userId", use it. Otherwise, if you're using MongoDB's _id field,
-    // you can convert the string to ObjectId:
     const user = await db.collection("users").findOne({ userId }) || await db.collection("users").findOne({ _id: new ObjectId(userId) });
     
     if (!user) {

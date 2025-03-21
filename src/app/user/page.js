@@ -22,7 +22,8 @@ export default function UserPage() {
   const router = useRouter();
   const [details, setDetails] = useState(null);
   const [itemsMap, setItemsMap] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loadingItems, setLoadingItems] = useState(true);
+  const [loadingDetails, setLoadingDetails] = useState(true);
 
   useEffect(() => {
     if (!user) {
@@ -33,6 +34,7 @@ export default function UserPage() {
   useEffect(() => {
     if (user) {
       async function fetchDetails() {
+        setLoadingDetails(true);
         try {
           const res = await fetch(`/api/user/details?userId=${user.userId}`);
           if (res.ok) {
@@ -44,6 +46,8 @@ export default function UserPage() {
         } catch (error) {
           console.error("Error fetching user details", error);
           setDetails(null);
+        } finally {
+          setLoadingDetails(false);
         }
       }
       fetchDetails();
@@ -60,19 +64,18 @@ export default function UserPage() {
           data.items.forEach((item) => {
             map[item._id.toString()] = item.name;
           });
-          console.log("Items Map:", map);
           setItemsMap(map);
         }
       } catch (error) {
         console.error("Error fetching items:", error);
       } finally {
-        setLoading(false);
+        setLoadingItems(false);
       }
     }
     fetchItems();
   }, []);
 
-  if (loading) {
+  if (loadingDetails || loadingItems) {
     return (
       <Container sx={{ py: 4 }}>
         <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
@@ -90,12 +93,7 @@ export default function UserPage() {
     );
   }
 
-  if (!user) {
-    router.push("/");
-    return null;
-  }
-
-  const role = user.isAdmin ? "Admin" : "Regular User";
+  const role = user?.isAdmin ? "Admin" : "Regular User";
 
   return (
     <Container sx={{ py: 4 }}>
@@ -125,9 +123,7 @@ export default function UserPage() {
         {details.ratings && details.ratings.length > 0 ? (
           <List>
             {details.ratings.map((r, idx) => {
-              const key = r.itemId.toString();
-              console.log("Rating itemId:", key);
-              const itemName = itemsMap[key] || key;
+              const itemName = itemsMap[r.itemId.toString()] || r.itemId;
               return (
                 <ListItem key={idx}>
                   <Typography variant="body2">
@@ -149,8 +145,7 @@ export default function UserPage() {
         {details.reviews && details.reviews.length > 0 ? (
           <List>
             {details.reviews.map((rev, idx) => {
-              const key = rev.itemId.toString();
-              const itemName = itemsMap[key] || key;
+              const itemName = itemsMap[rev.itemId.toString()] || rev.itemId;
               return (
                 <ListItem key={idx}>
                   <Typography variant="body2">

@@ -3,6 +3,8 @@ import HeroSection from "../components/HeroSection";
 import BrowseSection from "../components/BrowseSection";
 import { Container } from "@mui/material";
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const client = await clientPromise;
   const db = client.db("ecommerceDB");

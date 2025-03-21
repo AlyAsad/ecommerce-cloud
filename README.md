@@ -7,13 +7,13 @@ This project is an e-commerce web application developed as part of the CENG495 C
 
 ## Login Instructions
 - **Regular User:**  
-  You can register your own credentials from the website. However, a sample login user already registered is:
-  username: user1
+  You can register your own credentials from the website. However, a sample login user already registered is:\
+  username: user1\
   password: user1
   
 - **Admin User:**  
-  I have created an admin user for the CENG495 grading team.
-  username: Admin1
+  I have created an admin user for the CENG495 grading team:\
+  username: Admin1\
   password: cloudisbest
 ## Features
 

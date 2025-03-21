@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { Box, Typography, Button, IconButton, Snackbar, Alert } from "@mui/material";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 
 export default function InteractiveRating({ itemId, initialRating, initialNumRatings }) {
   const { user } = useAuth();
@@ -11,6 +14,7 @@ export default function InteractiveRating({ itemId, initialRating, initialNumRat
   const [numRatings, setNumRatings] = useState(initialNumRatings);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -32,9 +36,21 @@ export default function InteractiveRating({ itemId, initialRating, initialNumRat
     }
   }, [itemId, user]);
 
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  const updateRatingValues = (newAvg, newCount) => {
+    const validatedAvg = isNaN(Number(newAvg)) ? 0 : Number(newAvg);
+    const validatedCount = isNaN(Number(newCount)) ? 0 : Number(newCount);
+    setAvgRating(validatedAvg);
+    setNumRatings(validatedCount);
+  };
+
   const handleRatingClick = async (value) => {
     if (!user) {
       setMessage("Please log in to submit a rating.");
+      setSnackbarOpen(true);
       return;
     }
     const res = await fetch(`/api/items/${itemId}/rating`, {
@@ -48,14 +64,15 @@ export default function InteractiveRating({ itemId, initialRating, initialNumRat
     } else {
       setMessage(data.message);
       setSelectedRating(value);
-      setAvgRating(data.newAverage);
-      setNumRatings(data.newNumOfRatings);
+      updateRatingValues(data.newAverage, data.newNumOfRatings);
     }
+    setSnackbarOpen(true);
   };
 
   const handleRemoveRating = async () => {
     if (!user) {
       setMessage("Please log in to remove your rating.");
+      setSnackbarOpen(true);
       return;
     }
     const res = await fetch(`/api/items/${itemId}/rating`, {
@@ -69,59 +86,59 @@ export default function InteractiveRating({ itemId, initialRating, initialNumRat
     } else {
       setMessage(data.message);
       setSelectedRating(0);
-      setAvgRating(data.newAverage);
-      setNumRatings(data.newNumOfRatings);
+      updateRatingValues(data.newAverage, data.newNumOfRatings);
     }
+    setSnackbarOpen(true);
   };
 
   if (loading) {
-    return <p>Loading rating...</p>;
+    return <Typography>Loading rating...</Typography>;
   }
 
   const displayRating = hoverRating || selectedRating;
 
   return (
-    <div style={{ marginTop: "2rem" }}>
-      <p>
-        <strong>Rating:</strong> {avgRating} stars ({numRatings} ratings)
-      </p>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <button
-          onClick={handleRemoveRating}
-          style={{
-            marginRight: "1rem",
-            padding: "0.5rem 1rem",
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
+    <Box sx={{ mt: 3 }}>
+      <Typography variant="body1">
+        <strong>Rating:</strong> {Number(avgRating).toFixed(2)} stars ({numRatings} ratings)
+      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+        <Button variant="outlined" onClick={handleRemoveRating} sx={{ mr: 2 }}>
           Remove
-        </button>
-        <div>
+        </Button>
+        <Box>
           {[...Array(10)].map((_, index) => {
             const starValue = index + 1;
             return (
-              <span
+              <IconButton
                 key={starValue}
                 onMouseEnter={() => setHoverRating(starValue)}
                 onMouseLeave={() => setHoverRating(0)}
                 onClick={() => handleRatingClick(starValue)}
-                style={{
-                  cursor: "pointer",
-                  fontSize: "1.5rem",
-                  color: displayRating >= starValue ? "#FFD700" : "#ccc",
-                  marginRight: "2px",
-                }}
+                size="small"
               >
-                {displayRating >= starValue ? "★" : "☆"}
-              </span>
+                {displayRating >= starValue ? (
+                  <StarIcon sx={{ color: "#FFD700", fontSize: "1.5rem" }} />
+                ) : (
+                  <StarBorderIcon sx={{ color: "#ccc", fontSize: "1.5rem" }} />
+                )}
+              </IconButton>
             );
           })}
-        </div>
-      </div>
-      {message && <p>{message}</p>}
-    </div>
+        </Box>
+      </Box>
+
+      {/* Snackbar for feedback */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: "100%" }}>
+          {message}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 }

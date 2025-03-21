@@ -3,6 +3,27 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -12,6 +33,58 @@ export default function AdminPage() {
   const [users, setUsers] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
 
+  // Snackbar state for notifications
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  // Confirmation Dialog state for removals
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, type: "", id: "", message: "" });
+  const openConfirmDialog = (type, id, message) => {
+    setConfirmDialog({ open: true, type, id, message });
+  };
+  const closeConfirmDialog = () => {
+    setConfirmDialog({ ...confirmDialog, open: false });
+  };
+
+  const handleConfirmRemove = async () => {
+    const { type, id } = confirmDialog;
+    closeConfirmDialog();
+    if (type === "item") {
+      const res = await fetch("/api/admin/item/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId: id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSnackbar({ open: true, message: "Item removed successfully", severity: "success" });
+        // Refresh item list
+        const res2 = await fetch("/api/admin/item/list");
+        const data2 = await res2.json();
+        setItems(data2.items);
+      } else {
+        setSnackbar({ open: true, message: data.error || "Error removing item", severity: "error" });
+      }
+    } else if (type === "user") {
+      const res = await fetch("/api/admin/user/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSnackbar({ open: true, message: "User removed successfully", severity: "success" });
+        // Refresh user list:
+        const res2 = await fetch("/api/admin/user/list");
+        const data2 = await res2.json();
+        setUsers(data2.users);
+      } else {
+        setSnackbar({ open: true, message: data.error || "Error removing user", severity: "error" });
+      }
+    }
+  };
 
   // Redirect if not admin
   useEffect(() => {
@@ -20,7 +93,7 @@ export default function AdminPage() {
     }
   }, [user, router]);
 
-  // Fetch lists when component mounts (for removal lists)
+  // Fetch lists when component mounts
   useEffect(() => {
     async function fetchItems() {
       const res = await fetch("/api/admin/item/list");
@@ -48,32 +121,31 @@ export default function AdminPage() {
     const form = e.target;
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
-  
-    // Client-side validation for enabled fields:
+
+    // Client-side validations using snackbar notifications
     if (selectedCategory === "GPS Sport Watches" && !payload.battery_life) {
-      alert("Battery Life is required for GPS Sport Watches.");
+      setSnackbar({ open: true, message: "Battery Life is required for GPS Sport Watches.", severity: "error" });
       return;
     }
     if ((selectedCategory === "Vinyls" || selectedCategory === "Antique Furniture") && !payload.age) {
-      alert("Age is required for Vinyls and Antique Furniture.");
+      setSnackbar({ open: true, message: "Age is required for Vinyls and Antique Furniture.", severity: "error" });
       return;
     }
     if (selectedCategory === "Running Shoes" && !payload.size) {
-      alert("Size is required for Running Shoes.");
+      setSnackbar({ open: true, message: "Size is required for Running Shoes.", severity: "error" });
       return;
     }
     if ((selectedCategory === "Antique Furniture" || selectedCategory === "Running Shoes") && !payload.material) {
-      alert("Material is required for Antique Furniture and Running Shoes.");
+      setSnackbar({ open: true, message: "Material is required for Antique Furniture and Running Shoes.", severity: "error" });
       return;
     }
-    // Validate image URL
     try {
       new URL(payload.image);
     } catch (err) {
-      alert("Please enter a valid image URL.");
+      setSnackbar({ open: true, message: "Please enter a valid image URL.", severity: "error" });
       return;
     }
-  
+
     // Submit the new item
     const res = await fetch("/api/admin/item/add", {
       method: "POST",
@@ -82,36 +154,15 @@ export default function AdminPage() {
     });
     const data = await res.json();
     if (res.ok) {
-      alert("Item added successfully");
+      setSnackbar({ open: true, message: "Item added successfully", severity: "success" });
       form.reset();
-      setSelectedCategory(""); // Reset category selection
-      // Refresh item list, if needed:
+      setSelectedCategory("");
+      // Refresh item list
       const res2 = await fetch("/api/admin/item/list");
       const data2 = await res2.json();
       setItems(data2.items);
     } else {
-      alert(data.error || "Error adding item");
-    }
-  };
-  
-
-  // 2. Remove Item
-  const handleRemoveItem = async (itemId) => {
-    if (!confirm("Are you sure you want to remove this item?")) return;
-    const res = await fetch("/api/admin/item/remove", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemId }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert("Item removed successfully");
-      // refresh item list
-      const res2 = await fetch("/api/admin/item/list");
-      const data2 = await res2.json();
-      setItems(data2.items);
-    } else {
-      alert(data.error || "Error removing item");
+      setSnackbar({ open: true, message: data.error || "Error adding item", severity: "error" });
     }
   };
 
@@ -129,196 +180,308 @@ export default function AdminPage() {
     });
     const data = await res.json();
     if (res.ok) {
-      alert("User added successfully");
+      setSnackbar({ open: true, message: "User added successfully", severity: "success" });
       form.reset();
-      // refresh user list
+      // Refresh user list
       const res2 = await fetch("/api/admin/user/list");
       const data2 = await res2.json();
       setUsers(data2.users);
     } else {
-      alert(data.error || "Error adding user");
+      setSnackbar({ open: true, message: data.error || "Error adding user", severity: "error" });
     }
   };
 
-  // 4. Remove User
-  const handleRemoveUser = async (userIdToRemove) => {
-    if (user && user.userId === userIdToRemove) {
-      alert("You cannot remove yourself as a user.");
-      return;
-    }
-    if (!confirm("Are you sure you want to remove this user?")) return;
-    const res = await fetch("/api/admin/user/remove", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: userIdToRemove }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert("User removed successfully");
-      // refresh user list:
-      const res2 = await fetch("/api/admin/user/list");
-      const data2 = await res2.json();
-      setUsers(data2.users);
-    } else {
-      alert(data.error || "Error removing user");
-    }
-  };
+  // Render functions for each tab
 
-
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Admin Page</h1>
-      <div style={{ marginBottom: "1rem" }}>
-        <button onClick={() => setActiveTab("addItem")}>Add Item</button>
-        <button onClick={() => setActiveTab("removeItem")}>Remove Item</button>
-        <button onClick={() => setActiveTab("addUser")}>Add User</button>
-        <button onClick={() => setActiveTab("removeUser")}>Remove User</button>
-      </div>
-      {activeTab === "addItem" && (
-        <div>
-          <h2>Add Item</h2>
-          <form onSubmit={handleAddItem}>
-            <div>
-              <label>Name: </label>
-              <input name="name" required />
-            </div>
-            <div>
-              <label>Category: </label>
-              <select
+  // Add Item Tab with combined fields
+  const renderAddItemTab = () => (
+    <Box>
+      <Typography variant="h5" gutterBottom>
+        Add Item
+      </Typography>
+      <Box component="form" onSubmit={handleAddItem} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField label="Name" name="name" fullWidth required />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth required>
+              <InputLabel id="category-label">Category</InputLabel>
+              <Select
+                labelId="category-label"
+                label="Category"
                 name="category"
-                required
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                <option value="">Select a category</option>
-                <option value="Vinyls">Vinyls</option>
-                <option value="Antique Furniture">Antique Furniture</option>
-                <option value="GPS Sport Watches">GPS Sport Watches</option>
-                <option value="Running Shoes">Running Shoes</option>
-              </select>
-            </div>
-            <div>
-              <label>Description: </label>
-              <textarea name="description" required />
-            </div>
-            <div>
-              <label>Price: </label>
-              <input name="price" required />
-            </div>
-            <div>
-              <label>Seller: </label>
-              <input name="seller" required />
-            </div>
-            <div>
-              <label>Image URL: </label>
-              <input name="image" required placeholder="https://example.com/image.jpg" />
-            </div>
-            <div>
-              <label>Battery Life: </label>
-              <input
-                name="battery_life"
-                disabled={selectedCategory !== "GPS Sport Watches"}
-                style={{
-                  backgroundColor:
-                    selectedCategory !== "GPS Sport Watches" ? "#eee" : "inherit",
-                }}
-              />
-            </div>
-            <div>
-              <label>Age: </label>
-              <input
-                name="age"
-                disabled={!(selectedCategory === "Vinyls" || selectedCategory === "Antique Furniture")}
-                style={{
-                  backgroundColor:
-                    !(selectedCategory === "Vinyls" || selectedCategory === "Antique Furniture")
-                      ? "#eee"
-                      : "inherit",
-                }}
-              />
-            </div>
-            <div>
-              <label>Size: </label>
-              <input
-                name="size"
-                disabled={selectedCategory !== "Running Shoes"}
-                style={{
-                  backgroundColor: selectedCategory !== "Running Shoes" ? "#eee" : "inherit",
-                }}
-              />
-            </div>
-            <div>
-              <label>Material: </label>
-              <input
-                name="material"
-                disabled={!(selectedCategory === "Antique Furniture" || selectedCategory === "Running Shoes")}
-                style={{
-                  backgroundColor:
-                    !(selectedCategory === "Antique Furniture" || selectedCategory === "Running Shoes")
-                      ? "#eee"
-                      : "inherit",
-                }}
-              />
-            </div>
-            <button type="submit">Add Item</button>
-          </form>
-        </div>
-      )}
+                <MenuItem value="">
+                  <em>Select a category</em>
+                </MenuItem>
+                <MenuItem value="Vinyls">Vinyls</MenuItem>
+                <MenuItem value="Antique Furniture">Antique Furniture</MenuItem>
+                <MenuItem value="GPS Sport Watches">GPS Sport Watches</MenuItem>
+                <MenuItem value="Running Shoes">Running Shoes</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+        <TextField label="Description" name="description" multiline rows={3} required />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField label="Price" name="price" fullWidth required />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField label="Seller" name="seller" fullWidth required />
+          </Grid>
+        </Grid>
+        <TextField label="Image URL" name="image" fullWidth required placeholder="https://example.com/image.jpg" />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Battery Life"
+              name="battery_life"
+              fullWidth
+              disabled={selectedCategory !== "GPS Sport Watches"}
+              sx={{
+                backgroundColor: selectedCategory !== "GPS Sport Watches" ? "#eee" : "inherit",
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Age"
+              name="age"
+              fullWidth
+              disabled={!(selectedCategory === "Vinyls" || selectedCategory === "Antique Furniture")}
+              sx={{
+                backgroundColor:
+                  !(selectedCategory === "Vinyls" || selectedCategory === "Antique Furniture") ? "#eee" : "inherit",
+              }}
+            />
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Size"
+              name="size"
+              fullWidth
+              disabled={selectedCategory !== "Running Shoes"}
+              sx={{
+                backgroundColor: selectedCategory !== "Running Shoes" ? "#eee" : "inherit",
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Material"
+              name="material"
+              fullWidth
+              disabled={!(selectedCategory === "Antique Furniture" || selectedCategory === "Running Shoes")}
+              sx={{
+                backgroundColor:
+                  !(selectedCategory === "Antique Furniture" || selectedCategory === "Running Shoes") ? "#eee" : "inherit",
+              }}
+            />
+          </Grid>
+        </Grid>
+        <Button type="submit" variant="contained">
+          Add Item
+        </Button>
+      </Box>
+    </Box>
+  );
 
-      {activeTab === "removeItem" && (
-        <div>
-          <h2>Remove Item</h2>
-          {items.map((item) => (
-            <div key={item._id} style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
-              <img src={item.image} alt={item.name} style={{ width: "100px", height: "100px", objectFit: "cover" }} />
-              <div>
+  const renderRemoveItemTab = () => (
+    <Box>
+      <Typography variant="h5" gutterBottom>
+        Remove Item
+      </Typography>
+      {items.map((item) => (
+        <Box key={item._id} sx={{ border: "1px solid #ccc", p: 2, mb: 2, borderRadius: 1 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={3}>
+              <Box
+                component="img"
+                src={item.image}
+                alt={item.name}
+                sx={{ width: "100%", height: "auto", objectFit: "cover", borderRadius: 1 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="subtitle1" gutterBottom>
                 <strong>{item.name}</strong> - ${item.price}
-              </div>
-              <div>{item.description}</div>
-              <button onClick={() => handleRemoveItem(item._id)}>Remove</button>
-            </div>
-          ))}
-        </div>
-      )}
-      {activeTab === "addUser" && (
-        <div>
-          <h2>Add User</h2>
-          <form onSubmit={handleAddUser}>
-            <div>
-              <label>Username: </label>
-              <input name="username" required />
-            </div>
-            <div>
-              <label>Password: </label>
-              <input name="password" type="password" required />
-            </div>
-            <div>
-              <label>Admin: </label>
-              <input name="isAdmin" type="checkbox" />
-            </div>
-            <button type="submit">Add User</button>
-          </form>
-        </div>
-      )}
-      {activeTab === "removeUser" && (
-        <div>
-          <h2>Remove User</h2>
-          {users.map((u) => (
-            <div key={u._id} style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
-              <div>
-                <strong>{u.username}</strong> - {u.isAdmin ? "Admin" : "User"}
-              </div>
-              <div>
-                <strong>Ratings:</strong> {JSON.stringify(u.ratings)}
-              </div>
-              <div>
-                <strong>Reviews:</strong> {JSON.stringify(u.reviews)}
-              </div>
-              <button onClick={() => handleRemoveUser(u._id)}>Remove</button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+              </Typography>
+              <Typography variant="body2">Category: {item.category}</Typography>
+              <Typography variant="body2">
+                Rating: {Number(item.rating || 0).toFixed(2)} stars ({item.num_of_ratings || 0} ratings)
+              </Typography>
+              <Typography variant="body2">
+                Total Reviews: {item.reviews ? item.reviews.length : 0}
+              </Typography>
+              <Typography variant="body2">{item.description}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => openConfirmDialog("item", item._id, "Are you sure you want to remove this item?")}
+              >
+                Remove
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      ))}
+    </Box>
+  );
+
+  const renderAddUserTab = () => (
+    <Box>
+      <Typography variant="h5" gutterBottom>
+        Add User
+      </Typography>
+      <Box component="form" onSubmit={handleAddUser} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <TextField label="Username" name="username" required />
+        <TextField label="Password" name="password" type="password" required />
+        <FormControlLabel control={<Checkbox name="isAdmin" />} label="Admin" />
+        <Button type="submit" variant="contained">
+          Add User
+        </Button>
+      </Box>
+    </Box>
+  );
+
+  const renderRemoveUserTab = () => (
+    <Box>
+      <Typography variant="h5" gutterBottom>
+        Remove User
+      </Typography>
+      {users.map((u) => (
+        <Box key={u._id} sx={{ border: "1px solid #ccc", p: 2, mb: 2, borderRadius: 1 }}>
+          <Typography variant="subtitle1" gutterBottom>
+            <strong>{u.username}</strong> - {u.isAdmin ? "Admin" : "User"}
+          </Typography>
+          {u.ratings && u.ratings.length > 0 ? (
+            <Box sx={{ ml: 2 }}>
+              <Typography variant="body2" gutterBottom>
+                <strong>Ratings:</strong>
+              </Typography>
+              {u.ratings.map((rating, idx) => {
+                const item = items.find((it) => it._id === rating.itemId);
+                const itemName = item ? item.name : rating.itemId;
+                return (
+                  <Typography key={idx} variant="body2">
+                    {itemName}: {rating.rating} stars
+                  </Typography>
+                );
+              })}
+            </Box>
+          ) : (
+            <Typography variant="body2" gutterBottom>
+              <strong>Ratings:</strong> None
+            </Typography>
+          )}
+          {u.reviews && u.reviews.length > 0 ? (
+            <Box sx={{ ml: 2 }}>
+              <Typography variant="body2" gutterBottom>
+                <strong>Reviews:</strong>
+              </Typography>
+              {u.reviews.map((review, idx) => {
+                const item = items.find((it) => it._id === review.itemId);
+                const itemName = item ? item.name : review.itemId;
+                return (
+                  <Typography key={idx} variant="body2">
+                    {itemName}: {review.review}
+                  </Typography>
+                );
+              })}
+            </Box>
+          ) : (
+            <Typography variant="body2" gutterBottom>
+              <strong>Reviews:</strong> None
+            </Typography>
+          )}
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() =>
+              openConfirmDialog("user", u._id, "Are you sure you want to remove this user?")
+            }
+          >
+            Remove
+          </Button>
+        </Box>
+      ))}
+    </Box>
+  );
+  
+  
+
+  return (
+    <Container sx={{ py: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Admin Page
+      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <Button
+          variant={activeTab === "addItem" ? "contained" : "outlined"}
+          onClick={() => setActiveTab("addItem")}
+          sx={{ mr: 1 }}
+        >
+          Add Item
+        </Button>
+        <Button
+          variant={activeTab === "removeItem" ? "contained" : "outlined"}
+          onClick={() => setActiveTab("removeItem")}
+          sx={{ mr: 1 }}
+        >
+          Remove Item
+        </Button>
+        <Button
+          variant={activeTab === "addUser" ? "contained" : "outlined"}
+          onClick={() => setActiveTab("addUser")}
+          sx={{ mr: 1 }}
+        >
+          Add User
+        </Button>
+        <Button
+          variant={activeTab === "removeUser" ? "contained" : "outlined"}
+          onClick={() => setActiveTab("removeUser")}
+        >
+          Remove User
+        </Button>
+      </Box>
+      {activeTab === "addItem" && renderAddItemTab()}
+      {activeTab === "removeItem" && renderRemoveItemTab()}
+      {activeTab === "addUser" && renderAddUserTab()}
+      {activeTab === "removeUser" && renderRemoveUserTab()}
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      {/* Confirmation Dialog for removals */}
+      <Dialog open={confirmDialog.open} onClose={closeConfirmDialog}>
+        <DialogTitle>Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{confirmDialog.message}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeConfirmDialog}>Cancel</Button>
+          <Button onClick={handleConfirmRemove} color="error">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   );
 }

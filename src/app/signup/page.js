@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Container, Box, TextField, Typography, Button, Alert } from "@mui/material";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("");
@@ -30,39 +31,45 @@ export default function SignupPage() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Signup</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username: </label>
-          <input 
-            type="text" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
-            required 
+    <Container maxWidth="sm">
+      <Box sx={{ py: 4 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          Signup
+        </Typography>
+        <Box 
+          component="form" 
+          onSubmit={handleSubmit} 
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
+          <TextField
+            label="Username"
+            variant="outlined"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
           />
-        </div>
-        <div>
-          <label>Password: </label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
+          <TextField
+            label="Password"
+            variant="outlined"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
           />
-        </div>
-        <div>
-          <label>Retype Password: </label>
-          <input 
-            type="password" 
-            value={confirmPassword} 
-            onChange={(e) => setConfirmPassword(e.target.value)} 
-            required 
+          <TextField
+            label="Confirm Password"
+            variant="outlined"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
           />
-        </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit">Signup</button>
-      </form>
-    </div>
+          {error && <Alert severity="error">{error}</Alert>}
+          <Button type="submit" variant="contained" color="primary">
+            Signup
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
 }

@@ -1,6 +1,7 @@
 import clientPromise from "../lib/mongodb";
 import HeroSection from "../components/HeroSection";
 import BrowseSection from "../components/BrowseSection";
+import { Container } from "@mui/material";
 
 export default async function HomePage() {
   const client = await clientPromise;
@@ -23,9 +24,9 @@ export default async function HomePage() {
   ];
 
   return (
-    <div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <HeroSection topImages={topImages} />
       <BrowseSection items={items} categories={categories} />
-    </div>
+    </Container>
   );
 }

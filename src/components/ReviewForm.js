@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { Box, Typography, TextField, Button, Alert } from "@mui/material";
 
 export default function ReviewForm({ itemId, onReviewSubmitted }) {
   const { user } = useAuth();
@@ -31,24 +32,32 @@ export default function ReviewForm({ itemId, onReviewSubmitted }) {
   };
 
   return (
-    <div style={{ marginTop: "2rem" }}>
-      <h2>Leave a review</h2>
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="h5" gutterBottom>
+        Leave a review
+      </Typography>
       {user ? (
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Review: </label>
-            <textarea
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit">Submit Review</button>
-        </form>
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <TextField
+            label="Review"
+            multiline
+            minRows={3}
+            value={review}
+            onChange={(e) => setReview(e.target.value)}
+            required
+          />
+          <Button type="submit" variant="contained">
+            Submit Review
+          </Button>
+        </Box>
       ) : (
-        <p>Please log in to leave a review.</p>
+        <Typography>Please log in to leave a review.</Typography>
       )}
-      {message && <p>{message}</p>}
-    </div>
+      {message && (
+        <Alert severity={message.toLowerCase().includes("error") ? "error" : "success"}>
+          {message}
+        </Alert>
+      )}
+    </Box>
   );
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 
 export default function Navbar() {
   const router = useRouter();
@@ -15,60 +16,47 @@ export default function Navbar() {
   };
 
   return (
-    <nav
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "1rem 2rem",
-        backgroundColor: "#0077cc",
-        borderRadius: "10px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <Link
-        href="/"
-        style={{
-          fontSize: "1.2rem",
-          fontWeight: "bold",
-          color: "#fff",
-        }}
-      >
-        🏠 Home
-      </Link>
-      <div style={{ display: "flex", gap: "1rem", color: "#fff" }}>
-        {user ? (
-          <>
-            {user.isAdmin && (
-              <Link href="/admin" style={{ color: "#fff" }}>
-                Admin page
+    <AppBar position="static" sx={{ borderRadius: 2, boxShadow: 3 }}>
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        <Link href="/" passHref style={{ textDecoration: "none", color: "inherit" }}>
+          <Typography variant="h6" component="div">
+            🏠 Home
+          </Typography>
+        </Link>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {user ? (
+            <>
+              {user.isAdmin && (
+                <Link href="/admin" passHref style={{ textDecoration: "none" }}>
+                  <Button variant="contained" color="error">
+                    Admin page
+                  </Button>
+                </Link>
+              )}
+              <Typography variant="body1">
+                <Link
+                  href="/user"
+                  style={{ color: "inherit", textDecoration: "underline" }}
+                >
+                  {user.username}
+                </Link>
+              </Typography>
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" passHref style={{ textDecoration: "none", color: "inherit" }}>
+                <Button color="inherit">Login</Button>
               </Link>
-            )}
-            <span>{user.username}</span>
-            <span>|</span>
-            <button
-              onClick={handleLogout}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <Link href="/login" style={{ color: "#fff" }}>
-              Login
-            </Link>
-            <Link href="/signup" style={{ color: "#fff" }}>
-              Signup
-            </Link>
-          </>
-        )}
-      </div>
-    </nav>
+              <Link href="/signup" passHref style={{ textDecoration: "none", color: "inherit" }}>
+                <Button color="inherit">Signup</Button>
+              </Link>
+            </>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }

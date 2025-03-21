@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Box, Grid, Card, CardMedia, CardContent, Typography, Button } from "@mui/material";
+import { motion } from "framer-motion";
 
 export default function BrowseSection({ items, categories }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -11,80 +13,68 @@ export default function BrowseSection({ items, categories }) {
     : items.filter((item) => item.category === selectedCategory);
 
   return (
-    <section id="browse-section" style={{ padding: "2rem", backgroundColor: "#f5f5f5" }}>
+    <Box component="section" id="browse-section" sx={{ py: 4, bgcolor: "background.default" }}>
       {/* Category Buttons */}
-      <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+      <Box sx={{ textAlign: "center", mb: 3 }}>
         {categories.map((cat) => (
-          <button
+          <Button 
             key={cat.value}
             onClick={() => setSelectedCategory(cat.value)}
-            style={{
-              margin: "0 0.5rem",
-              padding: "0.5rem 1rem",
-              backgroundColor: selectedCategory === cat.value ? "#ddd" : "#fff",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
+            variant={selectedCategory === cat.value ? "contained" : "outlined"}
+            sx={{ mx: 1 }}
           >
             {cat.label}
-          </button>
+          </Button>
         ))}
-      </div>
-
+      </Box>
+      
       {/* Items Grid */}
-      <div
-        style={{
-          display: "grid",
-          gap: "1rem",
-          gridTemplateColumns: "repeat(auto-fit, 250px)",
-          justifyContent: "center",
-        }}
-      >
+      <Grid container spacing={3} justifyContent="center">
         {filteredItems.map((item) => (
-          <Link 
-            href={`/items/${item._id}`} 
-            key={item._id}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <div
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "0.5rem",
-              }}
-            >
-              <img
-                src={item.image}
-                alt={item.name}
-                style={{
-                  width: "100%",
-                  height: "120px",
-                  objectFit: "cover",
-                  borderRadius: "4px",
-                }}
-              />
-              <h3 style={{ margin: "0.5rem 0" }}>{item.name}</h3>
-              <p style={{ margin: "0.5rem 0" }}>${item.price}</p>
-              <p style={{ margin: "0.5rem 0" }}>
-                {item.rating ? item.rating : "N/A"} stars (
-                {item.num_of_ratings ? item.num_of_ratings : "0"} ratings)
-              </p>
-              <p style={{ 
-                margin: "0.5rem 0",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                minHeight: "2.3em",
-              }}>
-                {item.description}
-              </p>
-            </div>
-          </Link>
+          <Grid item key={item._id} xs={12} sm={6} md={4} lg={3}>
+            <Link href={`/items/${item._id}`} passHref style={{ textDecoration: "none", color: "inherit" }}>
+              <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
+                <Card sx={{ height: "100%" }}>
+                  <CardMedia 
+                    component="img"
+                    image={item.image}
+                    alt={item.name}
+                    sx={{ height: 140, objectFit: "cover" }}
+                  />
+                  <CardContent>
+                    <Typography variant="h6" component="div" gutterBottom>
+                      {item.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      ${item.price}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      {item.rating ? Number(item.rating).toFixed(2) : "N/A"} stars ({item.num_of_ratings ? item.num_of_ratings : "0"} ratings)
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      minHeight: "2.3em",
+                      mt: 1,
+                    }}>
+                      {item.description}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Link>
+          </Grid>
         ))}
-        {filteredItems.length === 0 && <p>No items found in this category.</p>}
-      </div>
-    </section>
+        {filteredItems.length === 0 && (
+          <Grid item xs={12}>
+            <Typography variant="h6" align="center">
+              No items found in this category.
+            </Typography>
+          </Grid>
+        )}
+      </Grid>
+    </Box>
   );
 }

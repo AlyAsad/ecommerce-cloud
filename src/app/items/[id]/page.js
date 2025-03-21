@@ -1,12 +1,12 @@
-// app/items/[id]/page.js
 import { ObjectId } from "mongodb";
 import clientPromise from "../../../lib/mongodb";
 import Link from "next/link";
 import InteractiveRating from "../../../components/InteractiveRating";
 import ReviewSection from "../../../components/ReviewSection";
+import { Container, Box, Typography, Grid, Button } from "@mui/material";
 
 export default async function ItemPage({ params }) {
-  const { id } = await params;
+  const { id } = params;
   const client = await clientPromise;
   const db = client.db("ecommerceDB");
 
@@ -15,55 +15,104 @@ export default async function ItemPage({ params }) {
     item = await db.collection("items").findOne({ _id: new ObjectId(id) });
   } catch (error) {
     console.error("Invalid ID format:", error);
-    return <div>Invalid item ID.</div>;
+    return (
+      <Container sx={{ py: 4 }}>
+        <Typography variant="h6" color="error">
+          Invalid item ID.
+        </Typography>
+      </Container>
+    );
   }
 
   if (!item) {
-    return <div>Item not found.</div>;
+    return (
+      <Container sx={{ py: 4 }}>
+        <Typography variant="h6" color="error">
+          Item not found.
+        </Typography>
+      </Container>
+    );
   }
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <Link href="/" style={{ marginBottom: "1rem", display: "inline-block" }}>
-        ← Back to Home
+    <Container sx={{ py: 4 }}>
+      <Link href="/" passHref>
+        <Button variant="outlined" sx={{ mb: 2 }}>
+          ← Back to Home
+        </Button>
       </Link>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", marginBottom: "2rem" }}>
+      <Grid container spacing={4}>
         {/* Item Image */}
-        <div>
-          <img
+        <Grid item xs={12} md={4}>
+          <Box
+            component="img"
             src={item.image}
             alt={item.name}
-            style={{ width: "300px", height: "300px", objectFit: "cover", borderRadius: "8px" }}
+            sx={{ width: "100%", height: "auto", objectFit: "cover", borderRadius: 2 }}
           />
-        </div>
+        </Grid>
         {/* Item Information */}
-        <div style={{ flex: 1 }}>
-          <h1>{item.name}</h1>
-          <p><strong>Category:</strong> {item.category}</p>
-          <p><strong>Price:</strong> ${item.price}</p>
-          <p><strong>Seller:</strong> {item.seller}</p>
-          {/* Interactive rating now shows overall rating dynamically */}
+        <Grid item xs={12} md={8}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            {item.name}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            <strong>Category:</strong> {item.category}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            <strong>Price:</strong> ${item.price}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            <strong>Seller:</strong> {item.seller}
+          </Typography>
           <InteractiveRating
             itemId={item._id.toString()}
             initialRating={item.rating || "0"}
             initialNumRatings={item.num_of_ratings || 0}
           />
-          <p>{item.description}</p>
-        </div>
-      </div>
+          <Typography variant="body2" sx={{ mt: 2 }}>
+            {item.description}
+          </Typography>
+        </Grid>
+      </Grid>
 
-      <div style={{ marginBottom: "2rem" }}>
-        <h2>Additional Information</h2>
-        <ul>
-          {item.battery_life && <li><strong>Battery Life:</strong> {item.battery_life}</li>}
-          {item.age && <li><strong>Age:</strong> {item.age}</li>}
-          {item.size && <li><strong>Size:</strong> {item.size}</li>}
-          {item.material && <li><strong>Material:</strong> {item.material}</li>}
-        </ul>
-      </div>
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Additional Information
+        </Typography>
+        <Box component="ul" sx={{ pl: 2 }}>
+          {item.battery_life && (
+            <li>
+              <Typography variant="body1">
+                <strong>Battery Life:</strong> {item.battery_life}
+              </Typography>
+            </li>
+          )}
+          {item.age && (
+            <li>
+              <Typography variant="body1">
+                <strong>Age:</strong> {item.age}
+              </Typography>
+            </li>
+          )}
+          {item.size && (
+            <li>
+              <Typography variant="body1">
+                <strong>Size:</strong> {item.size}
+              </Typography>
+            </li>
+          )}
+          {item.material && (
+            <li>
+              <Typography variant="body1">
+                <strong>Material:</strong> {item.material}
+              </Typography>
+            </li>
+          )}
+        </Box>
+      </Box>
 
-      {/* Reviews Section */}
       <ReviewSection itemId={item._id.toString()} initialReviews={item.reviews || []} />
-    </div>
+    </Container>
   );
 }

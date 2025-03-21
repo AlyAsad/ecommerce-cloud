@@ -1,22 +1,31 @@
 "use client";
 
+import { Box, Typography, Divider } from "@mui/material";
+
 export default function ReviewList({ reviews }) {
   return (
-    <div style={{ marginTop: "2rem" }}>
-      <h2>Customer Reviews</h2>
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="h5" gutterBottom>
+        Customer Reviews
+      </Typography>
       {reviews && reviews.length > 0 ? (
         [...reviews].reverse().map((review, index) => (
-          <div key={index} style={{ borderBottom: "1px solid #ccc", padding: "1rem 0" }}>
-            <p>
-              <strong>{review.username}</strong>
-              <span style={{ marginLeft: "1rem", color: "#666" }}>{review.date}</span>
-            </p>
-            <p>{review.data}</p>
-          </div>
+          <Box key={index} sx={{ py: 2 }}>
+            <Typography variant="subtitle1" component="span" sx={{ fontWeight: "bold" }}>
+              {review.username}
+            </Typography>
+            <Typography variant="body2" component="span" sx={{ ml: 2, color: "text.secondary" }}>
+              {review.date}
+            </Typography>
+            <Typography variant="body1" sx={{ mt: 1 }}>
+              {review.data}
+            </Typography>
+            {index < reviews.length - 1 && <Divider sx={{ my: 2 }} />}
+          </Box>
         ))
       ) : (
-        <p>No reviews yet.</p>
+        <Typography>No reviews yet.</Typography>
       )}
-    </div>
+    </Box>
   );
 }

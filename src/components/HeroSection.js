@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Box, Typography, Button, Grid } from "@mui/material";
+import { motion } from "framer-motion";
 
 export default function HeroSection({ topImages }) {
   const handleBrowse = () => {
@@ -11,45 +13,51 @@ export default function HeroSection({ topImages }) {
   };
 
   return (
-    <section
-      style={{
-        padding: "2rem",
+    <Box 
+      component="section"
+      sx={{
+        py: 6,
         textAlign: "center",
-        background: "linear-gradient(to right, #0077cc, #005faa)",
-        color: "#fff",
-        borderRadius: "10px",
+        bgcolor: "primary.main",
+        color: "primary.contrastText",
+        borderRadius: 2,
       }}
     >
-      <h1>E-commerce</h1>
-      <div style={{ margin: "1rem 0" }}>
-        <Link href="/about">
-          <button style={{ marginRight: "1rem", padding: "0.5rem 1rem", borderRadius: "8px", border: "none" }}>Learn More</button>
+      <Typography variant="h3" component="h1" gutterBottom>
+        E-commerce
+      </Typography>
+      <Box sx={{ mt: 2 }}>
+        <Link href="/about" passHref>
+          <Button variant="contained" sx={{ mr: 2 }}>
+            Learn More
+          </Button>
         </Link>
-        <button onClick={handleBrowse} style={{ padding: "0.5rem 1rem", borderRadius: "8px", border: "none" }}>Browse</button>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "1rem",
-          flexWrap: "wrap",
-          marginTop: "2rem",
-        }}
-      >
+        <Button variant="contained" onClick={handleBrowse}>
+          Browse
+        </Button>
+      </Box>
+      <Grid container spacing={2} justifyContent="center" sx={{ mt: 4 }}>
         {topImages.map((item, idx) => (
-          <img
-            key={idx}
-            src={item.image}
-            alt={item.name}
-            style={{
-              width: "200px",
-              height: "200px",
-              objectFit: "cover",
-              borderRadius: "8px",
-            }}
-          />
+          <Grid item key={idx}>
+            <Link href={`/items/${item._id}`} passHref>
+              <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
+                <Box
+                  component="img"
+                  src={item.image}
+                  alt={item.name}
+                  sx={{
+                    width: 200,
+                    height: 200,
+                    objectFit: "cover",
+                    borderRadius: 2,
+                    cursor: "pointer",
+                  }}
+                />
+              </motion.div>
+            </Link>
+          </Grid>
         ))}
-      </div>
-    </section>
+      </Grid>
+    </Box>
   );
 }

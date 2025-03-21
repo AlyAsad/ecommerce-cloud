@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ReviewForm from "./ReviewForm";
 import ReviewList from "./ReviewList";
+import { Box } from "@mui/material";
 
 export default function ReviewSection({ itemId, initialReviews }) {
   const [reviews, setReviews] = useState(initialReviews);
@@ -20,9 +21,9 @@ export default function ReviewSection({ itemId, initialReviews }) {
   };
 
   return (
-    <div style={{ marginTop: "2rem" }}>
+    <Box sx={{ mt: 4 }}>
       <ReviewForm itemId={itemId} onReviewSubmitted={handleReviewSubmitted} />
       <ReviewList reviews={reviews} />
-    </div>
+    </Box>
   );
 }

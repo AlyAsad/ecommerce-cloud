@@ -9,7 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.8",
+    "@mui/material": "^6.4.8",
     "bcryptjs": "^3.0.2",
+    "framer-motion": "^12.5.0",
     "mongodb": "^6.14.2",
     "next": "15.2.2",
     "react": "^19.0.0",

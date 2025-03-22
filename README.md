@@ -5,6 +5,8 @@ This project is an e-commerce web application developed as part of the CENG495 C
 ## Live Demo
 [https://ecommerce-aly.vercel.app/](https://ecommerce-aly.vercel.app/)
 
+**NOTE:** Since any public user can create an account and write a review, I am not liable for any offense or copyright problems originating from the review's contents on the website.
+
 ## Login Instructions
 - **Regular User:**  
   You can register your own credentials from the website. However, a sample login user already registered is:\

@@ -16,7 +16,7 @@ This project is an e-commerce web application developed as part of the CENG495 C
 - **Admin User:**  
   I have created an admin user for the CENG495 grading team:\
   username: Admin1\
-  password: cloudisbest
+  password: ~~redacted~~
 ## Features
 
 ### Home Page

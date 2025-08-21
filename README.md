@@ -77,12 +77,6 @@ This project is an e-commerce web application developed as part of the CENG495 C
    - The website uses a favicon located at `public/icon.png`.
 
 
-## Repository and Deployment
-- **Repository:**  
-  The source code is hosted on GitHub and is included in the submitted archive.
-- **Deployment:**  
-  The application is deployed on Vercel at [https://ecommerce-aly.vercel.app/](https://ecommerce-aly.vercel.app/).
-
 ## Additional Notes
 - The application is built as a single-page application using Next.js with the App Router.
 - The database was pre-populated with more than 10 items and 5 users.

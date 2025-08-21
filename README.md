@@ -79,7 +79,7 @@ This project is an e-commerce web application developed as part of the CENG495 C
 
 ## Repository and Deployment
 - **Repository:**  
-  The source code is hosted on GitHub (private for now) and is included in the submitted archive.
+  The source code is hosted on GitHub and is included in the submitted archive.
 - **Deployment:**  
   The application is deployed on Vercel at [https://ecommerce-aly.vercel.app/](https://ecommerce-aly.vercel.app/).
 

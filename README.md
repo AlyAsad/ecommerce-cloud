@@ -73,8 +73,6 @@ This project is an e-commerce web application developed as part of the CENG495 C
      - From the admin dashboard, admins can add or remove items and users.
 4. **User Profile:**  
    - The profile page shows your username, role, average rating, and lists of all your ratings and reviews.
-5. **Favicon:**  
-   - The website uses a favicon located at `public/icon.png`.
 
 
 ## Additional Notes
